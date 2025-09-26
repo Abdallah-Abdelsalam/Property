@@ -357,49 +357,101 @@
             <!-- Create New Sales Agent -->
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header bg-success text-white">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0">إضافة وسيط مبيعات جديد</h6>
+                        <i class="fas fa-user-plus"></i>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="{% url 'create_agent' %}">
+                        <form method="post" action="{% url 'create_agent' %}" id="agentForm" class="needs-validation" novalidate>
                             {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="username" class="form-label">اسم المستخدم</label>
-                                    <input type="text" class="form-control" id="username" name="username" required>
+                            
+                            <!-- Personal Information Section -->
+                            <div class="form-section mb-4">
+                                <h6 class="section-title border-bottom pb-2 mb-3">
+                                    <i class="fas fa-id-card me-2"></i>المعلومات الشخصية
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="username" class="form-label">
+                                            <i class="fas fa-user me-1"></i>اسم المستخدم <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                        <div class="invalid-feedback">يرجى إدخال اسم المستخدم</div>
+                                        <small class="form-text text-muted">اسم المستخدم الذي سيستخدمه الوسيط لتسجيل الدخول</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">
+                                            <i class="fas fa-envelope me-1"></i>البريد الإلكتروني <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                        <div class="invalid-feedback">يرجى إدخال بريد إلكتروني صحيح</div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="email" class="form-label">البريد الإلكتروني</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="first_name" class="form-label">
+                                            <i class="fas fa-signature me-1"></i>الاسم الأول
+                                        </label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name">
+                                        <small class="form-text text-muted">اختياري</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last_name" class="form-label">
+                                            <i class="fas fa-signature me-1"></i>الاسم الأخير
+                                        </label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name">
+                                        <small class="form-text text-muted">اختياري</small>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="first_name" class="form-label">الاسم الأول</label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="last_name" class="form-label">الاسم الأخير</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name">
+
+                            <!-- Security Information Section -->
+                            <div class="form-section mb-4">
+                                <h6 class="section-title border-bottom pb-2 mb-3">
+                                    <i class="fas fa-lock me-2"></i>معلومات الأمان
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password" class="form-label">
+                                            <i class="fas fa-key me-1"></i>كلمة المرور <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                                        <div class="invalid-feedback">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>
+                                        <small class="form-text text-muted">كلمة المرور يجب أن تكون 6 أحرف على الأقل</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="confirm_password" class="form-label">
+                                            <i class="fas fa-key me-1"></i>تأكيد كلمة المرور <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                        <div class="invalid-feedback">كلمة المرور غير متطابقة</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="password" class="form-label">كلمة المرور</label>
-                                    <input type="password" class="form-control" id="password" name="password" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="phone" class="form-label">رقم الهاتف</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone">
+
+                            <!-- Contact Information Section -->
+                            <div class="form-section mb-4">
+                                <h6 class="section-title border-bottom pb-2 mb-3">
+                                    <i class="fas fa-phone me-2"></i>معلومات الاتصال
+                                </h6>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">
+                                        <i class="fas fa-phone-alt me-1"></i>رقم الهاتف
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="مثال: 0551234567">
+                                    <small class="form-text text-muted">رقم الهاتف الذي يمكن للعملاء التواصل من خلاله</small>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="confirm_password" class="form-label">تأكيد كلمة المرور</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-user-plus me-2"></i> إنشاء حساب وسيط
+                                </button>
+                                <button type="reset" class="btn btn-outline-secondary w-100 mt-2">
+                                    <i class="fas fa-undo me-2"></i> مسح الحقول
+                                </button>
                             </div>
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-user-plus"></i> إنشاء حساب وسيط
-                            </button>
                         </form>
                     </div>
                 </div>
@@ -408,27 +460,34 @@
             <!-- Existing Agents List -->
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0">الوكلاء الحاليون</h6>
+                        <span class="badge bg-light text-dark">{{ agents.count }}</span>
                     </div>
                     <div class="card-body">
                         {% if agents %}
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
-                                        <th>اسم المستخدم</th>
-                                        <th>الاسم الكامل</th>
-                                        <th>البريد الإلكتروني</th>
-                                        <th>عدد العقارات</th>
+                                        <th><i class="fas fa-user me-1"></i>اسم المستخدم</th>
+                                        <th><i class="fas fa-id-card me-1"></i>الاسم الكامل</th>
+                                        <th><i class="fas fa-envelope me-1"></i>البريد الإلكتروني</th>
+                                        <th><i class="fas fa-home me-1"></i>عدد العقارات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for agent in agents %}
                                     <tr>
-                                        <td>{{ agent.username }}</td>
+                                        <td>
+                                            <strong>{{ agent.username }}</strong>
+                                        </td>
                                         <td>{{ agent.get_full_name|default:"غير محدد" }}</td>
-                                        <td>{{ agent.email }}</td>
+                                        <td>
+                                            <a href="mailto:{{ agent.email }}" class="text-decoration-none">
+                                                {{ agent.email }}
+                                            </a>
+                                        </td>
                                         <td>
                                             <span class="badge bg-primary">
                                                 {{ agent.property_set.count }}
@@ -440,9 +499,10 @@
                             </table>
                         </div>
                         {% else %}
-                        <div class="alert alert-warning text-center">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            لا توجد حسابات وكلاء مبيعات حالياً
+                        <div class="alert alert-warning text-center py-4">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h5>لا توجد حسابات وكلاء مبيعات حالياً</h5>
+                            <p class="mb-0">ابدأ بإضافة أول وسيط مبيعات إلى النظام</p>
                         </div>
                         {% endif %}
                     </div>
@@ -468,10 +528,11 @@
 </div>
 
 <style>
-    /* Add RTL support for Arabic */
+    /* Enhanced RTL support for Arabic */
     body {
         direction: rtl;
         text-align: right;
+        font-family: 'Tajawal', sans-serif;
     }
     
     .ms-2 {
@@ -486,17 +547,20 @@
     
     .card-title {
         font-weight: 600;
+        font-family: 'Almarai', sans-serif;
     }
     
     .property-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 10px;
         overflow: hidden;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .property-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
     
     .card-footer {
@@ -505,51 +569,136 @@
     }
     
     .btn-sm {
-        padding: 0.25rem 0.5rem;
+        padding: 0.4rem 0.75rem;
         font-size: 0.875rem;
+        border-radius: 6px;
     }
     
     .badge {
         font-size: 0.75em;
-        padding: 0.35em 0.65em;
+        padding: 0.4em 0.7em;
+        border-radius: 20px;
     }
     
     /* Statistics cards */
     .card.bg-primary, .card.bg-success, .card.bg-info, .card.bg-warning {
         border: none;
         border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     
-    /* Admin section styles */
-    .admin-management .card {
-        border: none;
+    /* Form enhancements */
+    .form-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
     }
     
-    .admin-management .card-header {
-        border-radius: 8px 8px 0 0 !important;
-    }
-    
-    /* User management styles */
-    .table th {
+    .section-title {
+        color: #2c3e50;
         font-weight: 600;
-        background-color: #f8f9fa;
+        font-family: 'Almarai', sans-serif;
+        font-size: 1.1rem;
     }
     
-    /* Make form selects smaller to fit in the card */
-    .form-select {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
     }
     
-    /* Share link styles */
-    .share-link-container {
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 0.75rem;
         transition: all 0.3s ease;
     }
     
-    .share-link-input {
-        font-size: 0.75rem;
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+    }
+    
+    .invalid-feedback {
+        display: none;
+        font-size: 0.85rem;
+    }
+    
+    .was-validated .form-control:invalid ~ .invalid-feedback {
+        display: block;
+    }
+    
+    /* Table enhancements */
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        border-bottom: 2px solid #dee2e6;
+        font-family: 'Almarai', sans-serif;
+    }
+    
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+    }
+    
+    /* User management specific styles */
+    .form-actions .btn {
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-weight: 500;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .form-section {
+            padding: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            padding: 0.6rem;
+        }
+        
+        .table-responsive {
+            font-size: 0.9rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .col-md-6 {
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .form-section {
+            padding: 0.75rem;
+        }
+        
+        .section-title {
+            font-size: 0.95rem;
+        }
+        
+        .table td, .table th {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
     }
 </style>
 
@@ -586,11 +735,13 @@
         }
     });
     
-    // Password confirmation validation
+    // Enhanced form validation
     document.addEventListener('DOMContentLoaded', function() {
+        const agentForm = document.getElementById('agentForm');
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirm_password');
         
+        // Password confirmation validation
         function validatePassword() {
             if (password.value !== confirmPassword.value) {
                 confirmPassword.setCustomValidity('كلمة المرور غير متطابقة');
@@ -600,8 +751,44 @@
         }
         
         if (password && confirmPassword) {
-            password.onchange = validatePassword;
-            confirmPassword.onkeyup = validatePassword;
+            password.addEventListener('input', validatePassword);
+            confirmPassword.addEventListener('input', validatePassword);
+        }
+        
+        // Enhanced form validation
+        if (agentForm) {
+            agentForm.addEventListener('submit', function(event) {
+                if (!agentForm.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                agentForm.classList.add('was-validated');
+            });
+            
+            // Real-time validation
+            const inputs = agentForm.querySelectorAll('input[required]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() === '') {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+        }
+        
+        // Auto-format phone number
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 0) {
+                    value = value.match(/.{1,4}/g).join(' ');
+                }
+                e.target.value = value;
+            });
         }
     });
 </script>

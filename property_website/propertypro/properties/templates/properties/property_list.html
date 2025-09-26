@@ -3,10 +3,18 @@
 
 {% block extra_css %}
 <style>
-    /* RTL support for Arabic */
+    /* Import professional fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+    
+    /* Base RTL styles */
     body {
         direction: rtl;
         text-align: right;
+        font-family: 'Tajawal', sans-serif;
+        color: #333;
+        line-height: 1.6;
+        background-color: #f8f9fa;
     }
     
     /* Enhanced Hero Section */
@@ -15,24 +23,45 @@
         background-size: cover;
         background-position: center;
         color: white;
-        padding: 5rem 0;
-        margin-bottom: 3rem;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
         position: relative;
+    }
+    
+    .hero-section h1 {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-section p {
+        font-size: 1.1rem;
+        opacity: 0.9;
     }
     
     /* Filter Section */
     .filter-section {
-        background: #f8f9fa;
+        background: #fff;
         padding: 1.5rem;
-        border-radius: 12px;
+        border-radius: 8px;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eaeaea;
     }
     
     .filter-section h5 {
         color: #2c3e50;
-        margin-bottom: 1rem;
+        margin-bottom: 1.2rem;
         font-weight: 600;
+        font-family: 'Almarai', sans-serif;
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-section h5 i {
+        margin-left: 10px;
+        color: #3498db;
     }
     
     .filter-row {
@@ -51,6 +80,20 @@
         font-weight: 500;
         margin-bottom: 0.5rem;
         color: #2c3e50;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 0.75rem;
+        font-family: 'Tajawal', sans-serif;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
     }
     
     /* Property Card Enhancements */
@@ -59,24 +102,43 @@
         border: none;
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 25px;
         height: 100%;
+        background: #fff;
     }
     
     .property-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-img-container {
+        overflow: hidden;
+        position: relative;
     }
     
     .card-img-top {
         height: 220px;
         object-fit: cover;
         transition: transform 0.5s ease;
+        width: 100%;
     }
     
     .property-card:hover .card-img-top {
         transform: scale(1.05);
+    }
+    
+    .property-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(52, 152, 219, 0.9);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
     
     .card-body {
@@ -84,22 +146,25 @@
     }
     
     .card-title {
-        font-weight: 600;
+        font-weight: 700;
         color: #2c3e50;
         margin-bottom: 0.75rem;
         font-size: 1.2rem;
+        font-family: 'Almarai', sans-serif;
         height: 2.8rem;
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
+        line-height: 1.4;
     }
     
     .price-tag {
         font-weight: 700;
-        color: #2980b9;
+        color: #27ae60; /* Professional green for price */
         font-size: 1.3rem;
         margin-bottom: 0.5rem;
+        font-family: 'Almarai', sans-serif;
     }
     
     .property-features {
@@ -116,6 +181,7 @@
         flex-direction: column;
         align-items: center;
         font-size: 0.9rem;
+        color: #555;
     }
     
     .property-features i {
@@ -129,52 +195,73 @@
         margin-bottom: 0.75rem;
         display: flex;
         align-items: center;
+        font-size: 0.95rem;
     }
     
     .location i {
         margin-left: 0.5rem;
-        margin-right: 0;
+        color: #e74c3c;
+    }
+    
+    .property-type {
+        background: #f8f9fa;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: #555;
+        display: inline-block;
     }
     
     .card-footer {
-        background: white;
-        border-top: 1px solid #f1f1f1;
+        background: #f8f9fa;
+        border-top: 1px solid #eaeaea;
         padding: 1rem 1.5rem;
         display: flex;
         justify-content: space-between;
+        gap: 10px;
+    }
+    
+    .btn {
+        border-radius: 6px;
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+        font-family: 'Tajawal', sans-serif;
+        transition: all 0.3s ease;
+        border: none;
     }
     
     .btn-primary {
-        background-color: #2980b9;
-        border-color: #2980b9;
-        border-radius: 4px;
-        font-weight: 500;
-        padding: 0.5rem 1.25rem;
+        background-color: #3498db;
+        border-color: #3498db;
+        flex: 1;
     }
     
     .btn-primary:hover {
-        background-color: #2471a3;
-        border-color: #2471a3;
+        background-color: #2980b9;
+        border-color: #2980b9;
+        transform: translateY(-2px);
     }
     
     .whatsapp-share {
         background-color: #25D366;
         border-color: #25D366;
-        border-radius: 4px;
-        font-weight: 500;
-        padding: 0.5rem 1rem;
+        flex: 1;
     }
     
     .whatsapp-share:hover {
         background-color: #128C7E;
         border-color: #128C7E;
+        transform: translateY(-2px);
     }
     
     /* Empty State */
     .empty-state {
-        padding: 4rem 1rem;
+        padding: 3rem 1rem;
         text-align: center;
         color: #7f8c8d;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
     .empty-state i {
@@ -183,36 +270,32 @@
         color: #ecf0f1;
     }
     
+    .empty-state h3 {
+        font-family: 'Almarai', sans-serif;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
     /* Access Denied Styling */
     .access-denied {
         text-align: center;
-        padding: 60px 20px;
+        padding: 3rem 1rem;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 2rem 0;
     }
     
     .access-denied i {
-        font-size: 80px;
-        color: #dc3545;
-        margin-bottom: 20px;
+        font-size: 4rem;
+        color: #e74c3c;
+        margin-bottom: 1.5rem;
     }
     
-    /* Pagination RTL adjustments */
-    .pagination {
-        padding-right: 0;
-    }
-    
-    /* Clear filters button */
-    .clear-filters {
-        margin-top: 1rem;
-        text-align: center;
-    }
-
-    .price-filter-group {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .price-input-group {
-        flex: 1;
+    .access-denied h2 {
+        font-family: 'Almarai', sans-serif;
+        color: #2c3e50;
+        margin-bottom: 1rem;
     }
     
     /* Add Property Button */
@@ -228,25 +311,72 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        background: #3498db;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
     }
     
+    .add-property-btn:hover {
+        background: #2980b9;
+        transform: scale(1.1);
+        color: white;
+    }
+    
+    /* Price filter group */
+    .price-filter-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .price-input-group {
+        flex: 1;
+    }
+    
+    /* Filter buttons */
+    .filter-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 1rem;
+    }
+    
+    .filter-buttons .btn {
+        flex: 1;
+    }
+    
+    /* Loading spinner */
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+    }
+    
+    /* Responsive adjustments for mobile */
     @media (max-width: 768px) {
-        .price-filter-group {
-            flex-direction: column;
+        .hero-section {
+            padding: 2rem 0;
+            margin-bottom: 1.5rem;
         }
         
-        .add-property-btn {
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
+        .hero-section h1 {
+            font-size: 1.8rem;
         }
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
+        
+        .hero-section p {
+            font-size: 1rem;
+        }
+        
+        .filter-section {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
         .filter-row {
             flex-direction: column;
+            gap: 0.75rem;
         }
         
         .filter-group {
@@ -254,12 +384,17 @@
             min-width: auto;
         }
         
+        .price-filter-group {
+            flex-direction: column;
+        }
+        
         .property-features {
             flex-wrap: wrap;
+            justify-content: space-around;
         }
         
         .property-features span {
-            width: 33%;
+            width: 30%;
             margin-bottom: 0.5rem;
         }
         
@@ -268,21 +403,85 @@
             gap: 0.5rem;
         }
         
-        .card-footer a {
+        .card-footer .btn {
             width: 100%;
             text-align: center;
         }
         
-        .input-group {
+        .add-property-btn {
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .filter-buttons {
+            flex-direction: column;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            height: auto;
+            min-height: 2.8rem;
+        }
+        
+        .price-tag {
+            font-size: 1.2rem;
+        }
+        
+        .empty-state, .access-denied {
+            padding: 2rem 1rem;
+            margin: 1rem 0;
+        }
+        
+        .empty-state i, .access-denied i {
+            font-size: 3rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        .property-features span {
+            width: 45%;
+        }
+        
+        .card-img-top {
+            height: 200px;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .card-footer {
+            padding: 0.75rem 1rem;
+        }
+        
+        .hero-section h1 {
+            font-size: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .property-features span {
+            width: 100%;
             flex-direction: row;
+            justify-content: flex-start;
         }
         
-        .input-group .form-control {
-            border-radius: 0 0.375rem 0.375rem 0;
+        .property-features i {
+            margin-bottom: 0;
+            margin-left: 5px;
         }
         
-        .input-group .btn {
-            border-radius: 0.375rem 0 0 0.375rem;
+        .property-features {
+            flex-direction: column;
+            gap: 0.5rem;
         }
     }
 </style>
@@ -317,7 +516,7 @@
     
     {% elif user.userprofile.role == 'agent' %}
     {# Redirect agents to their dashboard - this will be handled by JavaScript #}
-    <div class="text-center py-5">
+    <div class="loading-spinner">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">جاري التحميل...</span>
         </div>
@@ -334,7 +533,7 @@
 
     <!-- Search and Filter Section -->
     <div class="filter-section">
-        <h5><i class="fas fa-filter me-2"></i>بحث وتصفية العقارات</h5>
+        <h5><i class="fas fa-filter"></i> بحث وتصفية العقارات</h5>
         <form method="get" action="{% url 'property_list' %}" class="search-filter-form">
             <div class="filter-row">
                 <!-- Search by title -->
@@ -381,7 +580,9 @@
                         {% endfor %}
                     </select>
                 </div>
-                
+            </div>
+            
+            <div class="filter-row">
                 <!-- Filter by property type -->
                 <div class="filter-group">
                     <label for="property_type">نوع العقار</label>
@@ -394,10 +595,8 @@
                         {% endfor %}
                     </select>
                 </div>
-            </div>
-            
-            <!-- Price Filter Row -->
-            <div class="filter-row mt-3">
+                
+                <!-- Price Filter -->
                 <div class="filter-group">
                     <label for="min_price">السعر الأدنى (ريال سعودي)</label>
                     <input type="number" class="form-control" id="min_price" name="min_price" 
@@ -410,30 +609,20 @@
                            placeholder="أقصى سعر" value="{{ request.GET.max_price }}" min="0">
                 </div>
                 
-                <!-- Empty space to maintain layout -->
-                <div class="filter-group" style="visibility: hidden;">
-                    <label>&nbsp;</label>
-                    <input type="text" class="form-control" disabled>
-                </div>
-                
-                <!-- Empty space to maintain layout -->
-                <div class="filter-group" style="visibility: hidden;">
+                <!-- Empty space to maintain layout on desktop -->
+                <div class="filter-group d-none d-md-block" style="visibility: hidden;">
                     <label>&nbsp;</label>
                     <input type="text" class="form-control" disabled>
                 </div>
             </div>
             
-            <div class="filter-row mt-3">
-                <div class="filter-group">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>بحث وتصفية
-                    </button>
-                </div>
-                <div class="filter-group">
-                    <a href="{% url 'property_list' %}" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-times me-2"></i>مسح الفلاتر
-                    </a>
-                </div>
+            <div class="filter-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> بحث وتصفية
+                </button>
+                <a href="{% url 'property_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> مسح الفلاتر
+                </a>
             </div>
         </form>
     </div>
@@ -443,8 +632,9 @@
         {% for property in properties %}
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card property-card h-100">
-                <div style="overflow: hidden;">
+                <div class="card-img-container">
                     <img src="{{ property.main_image.url }}" class="card-img-top" alt="{{ property.title }}">
+                    <div class="property-badge">{{ property.property_type.display_name }}</div>
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">{{ property.title }}</h5>
@@ -457,9 +647,6 @@
                         <span><i class="fas fa-bed"></i> {{ property.bedrooms }} غرفة</span>
                         <span><i class="fas fa-bath"></i> {{ property.bathrooms }} حمام</span>
                         <span><i class="fas fa-ruler-combined"></i> {{ property.area }} م²</span>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-muted"><i class="fas fa-home me-1"></i> {{ property.property_type.display_name }}</small>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -561,6 +748,20 @@
                 minPriceInput.value = '';
                 maxPriceInput.value = '';
             }
+        }
+        
+        // Mobile menu enhancements
+        const filterForm = document.querySelector('.search-filter-form');
+        if (filterForm && window.innerWidth < 768) {
+            // Add collapse functionality for filters on mobile
+            const filterSection = document.querySelector('.filter-section');
+            const filterTitle = filterSection.querySelector('h5');
+            
+            filterTitle.style.cursor = 'pointer';
+            filterTitle.addEventListener('click', function() {
+                const form = this.closest('.filter-section').querySelector('form');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            });
         }
     });
 </script>
