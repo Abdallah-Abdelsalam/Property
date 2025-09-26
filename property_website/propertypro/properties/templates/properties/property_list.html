@@ -1,0 +1,567 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* RTL support for Arabic */
+    body {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* Enhanced Hero Section */
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static "properties/images/hero-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 5rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    /* Filter Section */
+    .filter-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .filter-section h5 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: end;
+    }
+    
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .filter-group label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+    
+    /* Property Card Enhancements */
+    .property-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+        height: 100%;
+    }
+    
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-img-top {
+        height: 220px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .property-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        font-size: 1.2rem;
+        height: 2.8rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .price-tag {
+        font-weight: 700;
+        color: #2980b9;
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .property-features {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0;
+        padding: 0.75rem 0;
+        border-top: 1px solid #f1f1f1;
+        border-bottom: 1px solid #f1f1f1;
+    }
+    
+    .property-features span {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .property-features i {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+        color: #7f8c8d;
+    }
+    
+    .location {
+        color: #7f8c8d;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .location i {
+        margin-left: 0.5rem;
+        margin-right: 0;
+    }
+    
+    .card-footer {
+        background: white;
+        border-top: 1px solid #f1f1f1;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .btn-primary {
+        background-color: #2980b9;
+        border-color: #2980b9;
+        border-radius: 4px;
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2471a3;
+        border-color: #2471a3;
+    }
+    
+    .whatsapp-share {
+        background-color: #25D366;
+        border-color: #25D366;
+        border-radius: 4px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+    }
+    
+    .whatsapp-share:hover {
+        background-color: #128C7E;
+        border-color: #128C7E;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 4rem 1rem;
+        text-align: center;
+        color: #7f8c8d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: #ecf0f1;
+    }
+    
+    /* Access Denied Styling */
+    .access-denied {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .access-denied i {
+        font-size: 80px;
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+    
+    /* Pagination RTL adjustments */
+    .pagination {
+        padding-right: 0;
+    }
+    
+    /* Clear filters button */
+    .clear-filters {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .price-filter-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .price-input-group {
+        flex: 1;
+    }
+    
+    /* Add Property Button */
+    .add-property-btn {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        z-index: 1000;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+        .price-filter-group {
+            flex-direction: column;
+        }
+        
+        .add-property-btn {
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .filter-row {
+            flex-direction: column;
+        }
+        
+        .filter-group {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .property-features {
+            flex-wrap: wrap;
+        }
+        
+        .property-features span {
+            width: 33%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-footer {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .card-footer a {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .input-group {
+            flex-direction: row;
+        }
+        
+        .input-group .form-control {
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
+        
+        .input-group .btn {
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">ابحث عن عقار أحلامك</h1>
+        <p class="lead mb-4">اكتشف منازل وشقق حصرية مصممة خصيصًا لنمط حياتك</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Access Control -->
+    {% if not user.is_authenticated %}
+    <div class="access-denied">
+        <i class="fas fa-exclamation-circle"></i>
+        <h2>تم رفض الوصول</h2>
+        <p>يجب تسجيل الدخول لعرض العقارات.</p>
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">تسجيل الدخول</a>
+    </div>
+    
+    {% elif user.userprofile.role == 'client' %}
+    <div class="access-denied">
+        <i class="fas fa-exclamation-circle"></i>
+        <h2>وصول مقيد</h2>
+        <p>فقط الوكلاء والمشرفون يمكنهم عرض قوائم العقارات.</p>
+        <p>صلاحياتك: <strong>عميل</strong></p>
+        <a href="{% url 'client_dashboard' %}" class="btn btn-primary">الذهاب إلى لوحة تحكم العميل</a>
+    </div>
+    
+    {% elif user.userprofile.role == 'agent' %}
+    {# Redirect agents to their dashboard - this will be handled by JavaScript #}
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">جاري التحميل...</span>
+        </div>
+        <p class="mt-3">جاري تحويلك إلى لوحة تحكم الوكيل...</p>
+    </div>
+    
+    {% else %}
+    <!-- Add Property Button for Admins -->
+    {% if user.userprofile.role == 'admin' or user.is_superuser %}
+    <a href="{% url 'add_property' %}" class="btn btn-primary add-property-btn" title="إضافة عقار جديد">
+        <i class="fas fa-plus"></i>
+    </a>
+    {% endif %}
+
+    <!-- Search and Filter Section -->
+    <div class="filter-section">
+        <h5><i class="fas fa-filter me-2"></i>بحث وتصفية العقارات</h5>
+        <form method="get" action="{% url 'property_list' %}" class="search-filter-form">
+            <div class="filter-row">
+                <!-- Search by title -->
+                <div class="filter-group">
+                    <label for="search">بحث بالعنوان</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           placeholder="ابحث بعنوان العقار..." value="{{ request.GET.search }}">
+                </div>
+            
+                <!-- Filter by city -->
+                <div class="filter-group">
+                    <label for="city">المدينة</label>
+                    <select class="form-select" id="city" name="city">
+                        <option value="">جميع المدن</option>
+                        {% for city in cities %}
+                        <option value="{{ city.id }}" {% if request.GET.city == city.id|stringformat:"s" %}selected{% endif %}>
+                            {{ city.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Filter by state -->
+                <div class="filter-group">
+                    <label for="state">المنطقة</label>
+                    <select class="form-select" id="state" name="state">
+                        <option value="">جميع المناطق</option>
+                        {% for state in states %}
+                        <option value="{{ state.id }}" {% if request.GET.state == state.id|stringformat:"s" %}selected{% endif %}>
+                            {{ state.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="address">العنوان</label>
+                    <select class="form-select" id="address" name="address">
+                        <option value="">جميع العناوين</option>
+                        {% for address in addresses %}
+                        <option value="{{ address.id }}" {% if request.GET.address == address.id|stringformat:"s" %}selected{% endif %}>
+                            {{ address.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Filter by property type -->
+                <div class="filter-group">
+                    <label for="property_type">نوع العقار</label>
+                    <select class="form-select" id="property_type" name="property_type">
+                        <option value="">جميع الأنواع</option>
+                        {% for prop_type in property_types %}
+                        <option value="{{ prop_type.id }}" {% if request.GET.property_type == prop_type.id|stringformat:"s" %}selected{% endif %}>
+                            {{ prop_type.display_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Price Filter Row -->
+            <div class="filter-row mt-3">
+                <div class="filter-group">
+                    <label for="min_price">السعر الأدنى (ريال سعودي)</label>
+                    <input type="number" class="form-control" id="min_price" name="min_price" 
+                           placeholder="أدنى سعر" value="{{ request.GET.min_price }}" min="0">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="max_price">السعر الأقصى (ريال سعودي)</label>
+                    <input type="number" class="form-control" id="max_price" name="max_price" 
+                           placeholder="أقصى سعر" value="{{ request.GET.max_price }}" min="0">
+                </div>
+                
+                <!-- Empty space to maintain layout -->
+                <div class="filter-group" style="visibility: hidden;">
+                    <label>&nbsp;</label>
+                    <input type="text" class="form-control" disabled>
+                </div>
+                
+                <!-- Empty space to maintain layout -->
+                <div class="filter-group" style="visibility: hidden;">
+                    <label>&nbsp;</label>
+                    <input type="text" class="form-control" disabled>
+                </div>
+            </div>
+            
+            <div class="filter-row mt-3">
+                <div class="filter-group">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>بحث وتصفية
+                    </button>
+                </div>
+                <div class="filter-group">
+                    <a href="{% url 'property_list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times me-2"></i>مسح الفلاتر
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Properties listing (only visible to admins) -->
+    <div class="row">
+        {% for property in properties %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card property-card h-100">
+                <div style="overflow: hidden;">
+                    <img src="{{ property.main_image.url }}" class="card-img-top" alt="{{ property.title }}">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ property.title }}</h5>
+                    <p class="location">
+                        <i class="fas fa-map-marker-alt"></i> {{ property.city.name }}, {{ property.state.name }}
+                    </p>
+                    <p class="price-tag">{{ property.price }} ريال سعودي</p>
+                    
+                    <div class="property-features">
+                        <span><i class="fas fa-bed"></i> {{ property.bedrooms }} غرفة</span>
+                        <span><i class="fas fa-bath"></i> {{ property.bathrooms }} حمام</span>
+                        <span><i class="fas fa-ruler-combined"></i> {{ property.area }} م²</span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted"><i class="fas fa-home me-1"></i> {{ property.property_type.display_name }}</small>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'property_detail' property.pk %}" class="btn btn-primary">عرض التفاصيل</a>
+                    {% if user.is_authenticated %}
+                    <a href="{{ property.whatsapp_share_url }}" target="_blank" class="btn btn-success whatsapp-share">
+                        <i class="fab fa-whatsapp"></i> مشاركة
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="fas fa-home"></i>
+                <h3>لا توجد عقارات متاحة</h3>
+                <p>{% if request.GET %}لم يتم العثور على عقارات تطابق معايير البحث{% else %}تحقق لاحقًا للحصول على قوائم جديدة{% endif %}</p>
+                {% if request.GET %}
+                <a href="{% url 'property_list' %}" class="btn btn-primary mt-3">عرض جميع العقارات</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination (optional) -->
+    {% if properties.has_other_pages %}
+    <nav aria-label="ترقيم الصفحات" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if properties.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ properties.next_page_number }}" aria-label="التالي">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for i in properties.paginator.page_range %}
+            <li class="page-item {% if properties.number == i %}active{% endif %}">
+                <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ i }}">{{ i }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if properties.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ properties.previous_page_number }}" aria-label="السابق">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Redirect agents to their dashboard
+        {% if user.userprofile.role == 'agent' %}
+        setTimeout(function() {
+            window.location.href = "{% url 'agent_dashboard' %}";
+        }, 2000);
+        {% endif %}
+        
+        // Card animation for admin users
+        {% if user.userprofile.role == 'admin' or user.is_superuser %}
+        const cards = document.querySelectorAll('.property-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 + (index * 100));
+        });
+        {% endif %}
+        
+        // Validate price inputs
+        const minPriceInput = document.getElementById('min_price');
+        const maxPriceInput = document.getElementById('max_price');
+        
+        if (minPriceInput && maxPriceInput) {
+            minPriceInput.addEventListener('change', validatePrices);
+            maxPriceInput.addEventListener('change', validatePrices);
+        }
+        
+        function validatePrices() {
+            const minPrice = parseFloat(minPriceInput.value);
+            const maxPrice = parseFloat(maxPriceInput.value);
+            
+            if (minPrice && maxPrice && minPrice > maxPrice) {
+                alert('السعر الأدنى يجب أن يكون أقل من أو يساوي السعر الأقصى');
+                minPriceInput.value = '';
+                maxPriceInput.value = '';
+            }
+        }
+    });
+</script>
+{% endblock %}

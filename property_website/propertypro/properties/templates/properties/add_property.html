@@ -1,0 +1,343 @@
+{% extends 'properties/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>إضافة عقار جديد
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Agent Assignment Section (Only for Admins) -->
+{% if user.userprofile.role == 'admin' or user.is_superuser %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="border-bottom pb-2 mb-3">
+            <i class="fas fa-user-tie me-2"></i>تعيين الوسيط
+        </h5>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <label for="agent" class="form-label fw-bold">تعيين وسيط للعقار</label>
+        <select class="form-select" id="agent" name="agent">
+            <option value="">اختر وسيطًا...</option>
+            {% for agent in agents %}
+            <option value="{{ agent.id }}" {% if property.agent.id == agent.id %}selected{% endif %}>
+                {{ agent.get_full_name|default:agent.username }} ({{ agent.username }})
+            </option>
+            {% empty %}
+            <option value="">لا يوجد وكلاء متاحين</option>
+            {% endfor %}
+        </select>
+        <div class="form-text">هذا الحقل يظهر فقط للمشرفين. إذا لم تختر وسيطًا، سيتم تعيينك كوسيط افتراضي.</div>
+    </div>
+</div>
+{% endif %}
+                        
+                        <!-- Basic Information Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>المعلومات الأساسية
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">عنوان العقار*</label>
+                                {{ form.title }}
+                                <div class="form-text">عنوان وصفي للعقار</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.property_type.id_for_label }}" class="form-label fw-bold">نوع العقار*</label>
+                                {{ form.property_type }}
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">الوصف*</label>
+                                {{ form.description }}
+                                <div class="form-text">صف ميزات ومرافق العقار</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pricing & Details Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-tag me-2"></i>التسعير والتفاصيل
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">السعر (ريال سعودي)*</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">ريال</span>
+                                    {{ form.price }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <label for="{{ form.bedrooms.id_for_label }}" class="form-label fw-bold">عدد الغرف*</label>
+                                {{ form.bedrooms }}
+                            </div>
+                            
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <label for="{{ form.bathrooms.id_for_label }}" class="form-label fw-bold">عدد الحمامات*</label>
+                                {{ form.bathrooms }}
+                            </div>
+                            
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <label for="{{ form.area.id_for_label }}" class="form-label fw-bold">المساحة (م²)*</label>
+                                <div class="input-group">
+                                    {{ form.area }}
+                                    <span class="input-group-text">م²</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Location Information Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>معلومات الموقع
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.address.id_for_label }}" class="form-label fw-bold">العنوان*</label>
+                                {{ form.address }}
+                            </div>
+                            
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <label for="{{ form.city.id_for_label }}" class="form-label fw-bold">المدينة*</label>
+                                {{ form.city }}
+                            </div>
+                            
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <label for="{{ form.state.id_for_label }}" class="form-label fw-bold">المنطقة*</label>
+                                {{ form.state }}
+                            </div>
+                        </div>
+                        
+                        <!-- Contact & Media Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-camera me-2"></i>وسائط واتصال
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.owner_phone.id_for_label }}" class="form-label fw-bold">رقم هاتف المالك</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    {{ form.owner_phone }}
+                                </div>
+                                <div class="form-text">{{ form.owner_phone.help_text }}</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.main_image.id_for_label }}" class="form-label fw-bold">الصورة الرئيسية*</label>
+                                {{ form.main_image }}
+                                <div class="form-text">ستكون هذه الصورة الرئيسية المعروضة للعقار</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Publication Status -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    {{ form.is_published }}
+                                    <label class="form-check-label fw-bold" for="{{ form.is_published.id_for_label }}">
+                                        نشر هذا العقار
+                                    </label>
+                                </div>
+                                <div class="form-text">عند النشر، سيكون العقار مرئيًا للعملاء</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                                    <a href="{% url 'agent_dashboard' %}" class="btn btn-lg btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>إلغاء
+                                    </a>
+                                    <button type="submit" class="btn btn-lg btn-success">
+                                        <i class="fas fa-plus-circle me-2"></i>إضافة العقار
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Add RTL support for Arabic */
+    body {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    .me-2 {
+        margin-right: 0 !important;
+        margin-left: 0.5rem !important;
+    }
+    
+    .input-group-text {
+        border-right: 2px solid #e9ecef;
+        border-left: none;
+    }
+    
+    .form-control, .form-select {
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        width: 100%;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-left: none;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        margin-left: 10px;
+        margin-right: 0;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        padding: 20px;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-control, .form-select {
+            font-size: 16px;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .d-flex.flex-md-row {
+            flex-direction: column;
+        }
+    }
+    
+    /* Validation styles */
+    .needs-validation .form-control:invalid,
+    .needs-validation .form-select:invalid {
+        border-color: #dc3545;
+    }
+    
+    .needs-validation .form-control:valid,
+    .needs-validation .form-select:valid {
+        border-color: #28a745;
+    }
+</style>
+
+<script>
+    // Enhanced form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+        
+        // Add touch-friendly improvements
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    });
+</script>
+{% endblock %}

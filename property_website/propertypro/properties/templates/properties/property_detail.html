@@ -1,0 +1,1002 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid property-detail-container">
+    <!-- Property Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="property-header">
+                <h1 class="property-title">{{ property.title }}</h1>
+                <div class="property-location">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    {{ property.address }}, {{ property.city }}, {{ property.state }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Image and Details -->
+    <div class="row mb-5">
+        <!-- Main Image -->
+        <div class="col-lg-8 mb-4">
+            <div class="card property-image-card">
+                <div class="property-image-wrapper">
+                    <img src="{{ property.main_image.url }}" class="main-property-image" alt="{{ property.title }}" onclick="openLightbox('{{ property.main_image.url }}')">
+                </div>
+                
+                <!-- Price and Action Buttons -->
+                <div class="card-body property-actions">
+                    <div class="price-section">
+                        <h2 class="property-price">{{ property.price }} ريال سعودي</h2>
+                        <div class="price-label">السعر</div>
+                    </div>
+                    <div class="action-buttons">
+                        {% if user.is_authenticated %}
+                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-whatsapp" data-bs-toggle="tooltip" title="مشاركة العقار عبر واتساب">
+                            <i class="fab fa-whatsapp"></i> مشاركة عبر واتساب
+                        </a>
+                        {% endif %}
+                        
+                        <!-- Share Public Link Button -->
+                        {% if user.is_authenticated %}
+                        <button onclick="copyShareLink()" class="btn btn-copy-link" data-bs-toggle="tooltip" title="نسخ الرابط العام للمشاركة">
+                            <i class="fas fa-link"></i> نسخ الرابط العام
+                        </button>
+                        {% endif %}
+                        
+                        {% if user.is_authenticated and user == property.agent %}
+                        <a href="{% url 'edit_property' property.pk %}" class="btn btn-edit" data-bs-toggle="tooltip" title="تعديل معلومات العقار">
+                            <i class="fas fa-edit"></i> تعديل
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Share Link Input (hidden by default) -->
+                    {% if user.is_authenticated %}
+                    <div class="share-link-container mt-3" id="shareLinkContainer" style="display: none;">
+                        <div class="input-group">
+                            <input type="text" class="form-control share-link-input" id="shareLink" value="{{ shareable_link }}" readonly>
+                            <button class="btn btn-copy-input" type="button" onclick="copyShareLink()" data-bs-toggle="tooltip" title="نسخ الرابط إلى الحافظة">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <small class="share-link-note">هذا الرابط يمكن مشاركته مع العملاء دون الحاجة لتسجيل الدخول</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Details and Agent Contact -->
+        <div class="col-lg-4">
+            <!-- Property Details Card -->
+            <div class="card property-details-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-info-circle"></i> تفاصيل العقار
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <div class="detail-label">النوع:</div>
+                        <div class="detail-value">{{ property.property_type.display_name }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الغرف:</div>
+                        <div class="detail-value">{{ property.bedrooms }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الحمامات:</div>
+                        <div class="detail-value">{{ property.bathrooms }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">المساحة:</div>
+                        <div class="detail-value">{{ property.area }} م²</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الحالة:</div>
+                        <div class="detail-value">
+                            <span class="status-badge {% if property.is_published %}published{% else %}unpublished{% endif %}" data-bs-toggle="tooltip" title="{% if property.is_published %}العقار متاح للعرض{% else %}العقار غير متاح حالياً{% endif %}">
+                                {% if property.is_published %}متاح{% else %}غير متاح{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">تاريخ الإضافة:</div>
+                        <div class="detail-value">{{ property.created_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Contact Card - Only visible to logged in agents/admins -->
+            {% if user.is_authenticated and user.userprofile.role in 'agent admin' or user.is_superuser %}
+            <div class="card agent-contact-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-user"></i> اتصال الوسيط
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="agent-avatar mb-3">
+                        {% if property.agent.userprofile.profile_picture %}
+                            <img src="{{ property.agent.userprofile.profile_picture.url }}" alt="{{ property.agent.get_full_name }}" class="agent-profile-image">
+                        {% else %}
+                            <div class="agent-profile-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h6 class="agent-name mb-1">{{ property.agent.get_full_name|default:property.agent.username }}</h6>
+                    <p class="agent-role small mb-3">وسيط عقاري</p>
+                    
+                    <div class="agent-contact-buttons">
+                        {% if property.agent.userprofile.phone %}
+                        <a href="tel:{{ property.agent.userprofile.phone }}" class="btn btn-call-agent" data-bs-toggle="tooltip" title="الاتصال المباشر بالوسيط">
+                            <i class="fas fa-phone"></i> اتصل بالوسيط
+                        </a>
+                        {% endif %}
+                        
+                        <a href="mailto:{{ property.agent.email }}" class="btn btn-email-agent" data-bs-toggle="tooltip" title="إرسال بريد إلكتروني للوسيط">
+                            <i class="fas fa-envelope"></i> بريد الوسيط
+                        </a>
+                    </div>
+                    
+                    {% if property.agent.userprofile.phone %}
+                    <p class="agent-phone mt-3 mb-0 small">
+                        <i class="fas fa-phone"></i> 
+                        {{ property.agent.userprofile.phone }}
+                    </p>
+                    {% endif %}
+                    
+                    <p class="agent-email mb-0 small">
+                        <i class="fas fa-envelope"></i> 
+                        {{ property.agent.email }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Owner Contact Information (Visible only to the agent) -->
+    {% if can_view_owner_phone and property.owner_phone %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card owner-contact-card">
+                <div class="card-header owner-contact-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-lock"></i> معلومات اتصال المالك (خاص)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="owner-info-alert">
+                        <i class="fas fa-info-circle"></i> هذه المعلومات مرئية فقط لك كوسيط القائمة.
+                    </div>
+                    <div class="owner-contact-content">
+                        <div class="owner-phone-section">
+                            <h6>رقم هاتف المالك</h6>
+                            <p class="owner-phone-number">
+                                <i class="fas fa-phone"></i> 
+                                <a href="tel:{{ property.owner_phone }}" class="owner-phone-link">
+                                    {{ property.owner_phone }}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="owner-contact-buttons">
+                            <a href="tel:{{ property.owner_phone }}" class="btn btn-call-owner" data-bs-toggle="tooltip" title="الاتصال المباشر بالمالك">
+                                <i class="fas fa-phone"></i> اتصل بالمالك
+                            </a>
+                            <a href="https://wa.me/{{ property.owner_phone|cut:' '|cut:'+'|cut:'-'|cut:'('|cut:')' }}" 
+                               target="_blank" class="btn btn-whatsapp-owner" data-bs-toggle="tooltip" title="فتح محادثة واتساب مع المالك">
+                                <i class="fab fa-whatsapp"></i> واتساب
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Description -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card description-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-align-left"></i> الوصف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="property-description">
+                        {{ property.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Images -->
+    {% if property.images.all %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card gallery-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-images"></i> صور إضافية ({{ property.images.all.count }})
+                    </h5>
+                    <div class="gallery-instruction">انقر على أي صورة لعرضها بالحجم الكامل</div>
+                </div>
+                <div class="card-body">
+                    <div class="gallery-grid">
+                        {% for image in property.images.all %}
+                        <div class="gallery-item">
+                            <div class="gallery-image-container">
+                                <img src="{{ image.image.url }}" class="gallery-image" alt="صورة العقار" onclick="openLightbox('{{ image.image.url }}')" data-bs-toggle="tooltip" title="انقر لعرض الصورة بالحجم الكامل">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="navigation-section">
+                <a href="{% url 'property_list' %}" class="btn btn-back" data-bs-toggle="tooltip" title="العودة إلى قائمة العقارات">
+                    <i class="fas fa-arrow-left"></i> العودة إلى العقارات
+                </a>
+                {% if user.is_authenticated and user == property.agent %}
+                <div class="property-management-buttons">
+                    <a href="{% url 'add_property_images' property.pk %}" class="btn btn-manage-images" data-bs-toggle="tooltip" title="إدارة الصور الخاصة بالعقار">
+                        <i class="fas fa-images"></i> إدارة الصور
+                    </a>
+                    <a href="{% url 'edit_property' property.pk %}" class="btn btn-edit-property" data-bs-toggle="tooltip" title="تعديل معلومات العقار">
+                        <i class="fas fa-edit"></i> تعديل العقار
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content lightbox-content">
+            <div class="modal-header lightbox-header">
+                <button type="button" class="btn-close lightbox-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body lightbox-body">
+                <img id="lightboxImage" src="" alt="صورة العقار بالحجم الكامل" class="lightbox-image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Copy Success Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="copyToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header toast-success">
+            <i class="fas fa-check-circle"></i>
+            <strong class="toast-title">تم النسخ</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            تم نسخ رابط العقار بنجاح!
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Import professional fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+    
+    /* Base styles */
+    body {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Tajawal', sans-serif;
+        color: #333;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+    }
+    
+    .property-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 15px;
+    }
+    
+    /* Property Header */
+    .property-header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eaeaea;
+    }
+    
+    .property-title {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 2.2rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+    
+    .property-location {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        display: flex;
+        align-items: center;
+    }
+    
+    .property-location i {
+        margin-left: 8px;
+        color: #e74c3c;
+    }
+    
+    /* Cards */
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #eaeaea;
+        padding: 15px 20px;
+    }
+    
+    .card-title {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-title i {
+        margin-left: 10px;
+        color: #3498db;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    /* Property Image Card */
+    .property-image-card {
+        height: 100%;
+    }
+    
+    .property-image-wrapper {
+        overflow: hidden;
+    }
+    
+    .main-property-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.5s ease;
+    }
+    
+    .main-property-image:hover {
+        transform: scale(1.02);
+    }
+    
+    .property-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-top: 1px solid #eaeaea;
+    }
+    
+    .price-section {
+        text-align: center;
+    }
+    
+    .property-price {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        color: #27ae60; /* Professional green for price */
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    .price-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Buttons */
+    .btn {
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        font-family: 'Tajawal', sans-serif;
+    }
+    
+    .btn-whatsapp {
+        background-color: #25D366;
+        color: white;
+    }
+    
+    .btn-whatsapp:hover {
+        background-color: #128C7E;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-copy-link {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-copy-link:hover {
+        background-color: #2980b9;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-edit {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background-color: #e67e22;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Property Details Card */
+    .property-details-card .card-body {
+        padding: 0;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .detail-value {
+        color: #555;
+    }
+    
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.published {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.unpublished {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    /* Agent Contact Card */
+    .agent-contact-card .card-body {
+        text-align: center;
+    }
+    
+    .agent-profile-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .agent-profile-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #95a5a6;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+    
+    .agent-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .agent-role {
+        color: #7f8c8d;
+    }
+    
+    .agent-contact-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .btn-call-agent {
+        background-color: #2ecc71;
+        color: white;
+    }
+    
+    .btn-call-agent:hover {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .btn-email-agent {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-email-agent:hover {
+        background-color: #2980b9;
+        color: white;
+    }
+    
+    .agent-phone, .agent-email {
+        color: #7f8c8d;
+    }
+    
+    .agent-phone i, .agent-email i {
+        margin-left: 5px;
+    }
+    
+    /* Owner Contact Card */
+    .owner-contact-header {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .owner-contact-header .card-title {
+        color: white;
+    }
+    
+    .owner-info-alert {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .owner-info-alert i {
+        margin-left: 8px;
+    }
+    
+    .owner-contact-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .owner-phone-section h6 {
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .owner-phone-number {
+        font-size: 1.2rem;
+        color: #27ae60;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .owner-phone-number i {
+        margin-left: 8px;
+        color: #2ecc71;
+    }
+    
+    .owner-phone-link {
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .owner-phone-link:hover {
+        text-decoration: underline;
+    }
+    
+    .owner-contact-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-call-owner {
+        background-color: #2ecc71;
+        color: white;
+    }
+    
+    .btn-call-owner:hover {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .btn-whatsapp-owner {
+        background-color: #25D366;
+        color: white;
+    }
+    
+    .btn-whatsapp-owner:hover {
+        background-color: #128C7E;
+        color: white;
+    }
+    
+    /* Description Card */
+    .property-description {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #444;
+    }
+    
+    /* Gallery */
+    .gallery-card .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .gallery-instruction {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .gallery-item {
+        aspect-ratio: 1;
+    }
+    
+    .gallery-image-container {
+        height: 100%;
+        overflow: hidden;
+        border-radius: 6px;
+    }
+    
+    .gallery-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    
+    .gallery-image:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Share Section */
+    .share-link-container {
+        width: 100%;
+    }
+    
+    .share-link-input {
+        border-radius: 6px 0 0 6px;
+    }
+    
+    .btn-copy-input {
+        border-radius: 0 6px 6px 0;
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .share-link-note {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: block;
+    }
+    
+    /* Navigation */
+    .navigation-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        border-top: 1px solid #eaeaea;
+    }
+    
+    .btn-back {
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .btn-back:hover {
+        background-color: #7f8c8d;
+        color: white;
+    }
+    
+    .property-management-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-manage-images {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-manage-images:hover {
+        background-color: #2980b9;
+        color: white;
+    }
+    
+    .btn-edit-property {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .btn-edit-property:hover {
+        background-color: #e67e22;
+        color: white;
+    }
+    
+    /* Lightbox */
+    .lightbox-content {
+        background: rgba(0, 0, 0, 0.9);
+        border: none;
+    }
+    
+    .lightbox-header {
+        border: none;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+    }
+    
+    .lightbox-close {
+        filter: invert(1);
+        opacity: 0.8;
+    }
+    
+    .lightbox-body {
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .lightbox-image {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+    }
+    
+    /* Toast */
+    .toast {
+        border-radius: 6px;
+    }
+    
+    .toast-success {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .toast-title {
+        margin: 0 10px;
+    }
+    
+    /* Tooltip */
+    .tooltip {
+        font-family: 'Tajawal', sans-serif;
+    }
+    
+    .tooltip-inner {
+        background-color: #2c3e50;
+        color: white;
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .property-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .action-buttons {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        
+        .owner-contact-content {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .property-title {
+            font-size: 1.8rem;
+        }
+        
+        .property-price {
+            font-size: 1.6rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .agent-contact-buttons {
+            flex-direction: column;
+        }
+        
+        .owner-contact-buttons {
+            flex-direction: column;
+        }
+        
+        .navigation-section {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .property-management-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .gallery-card .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .property-detail-container {
+            padding: 10px;
+        }
+        
+        .property-title {
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        .main-property-image {
+            height: 250px;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'hover focus',
+                delay: {show: 300, hide: 100}
+            });
+        });
+    });
+
+    // Lightbox functionality
+    function openLightbox(imageUrl) {
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxModal = new bootstrap.Modal(document.getElementById('imageLightbox'));
+        
+        lightboxImage.src = imageUrl;
+        lightboxModal.show();
+    }
+    
+    // Copy share link to clipboard
+    function copyShareLink() {
+        const shareLink = document.getElementById('shareLink');
+        const shareLinkContainer = document.getElementById('shareLinkContainer');
+        
+        // Show the input field if hidden
+        if (shareLinkContainer && shareLinkContainer.style.display === 'none') {
+            shareLinkContainer.style.display = 'block';
+        }
+        
+        shareLink.select();
+        shareLink.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(shareLink.value);
+        
+        // Show success toast
+        const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+        toast.show();
+    }
+    
+    // Keyboard navigation for lightbox
+    document.addEventListener('keydown', function(e) {
+        const lightbox = document.getElementById('imageLightbox');
+        if (lightbox.classList.contains('show')) {
+            if (e.key === 'Escape') {
+                bootstrap.Modal.getInstance(lightbox).hide();
+            }
+        }
+    });
+    
+    // Close lightbox when clicking on backdrop
+    document.getElementById('imageLightbox').addEventListener('click', function(e) {
+        if (e.target === this) {
+            bootstrap.Modal.getInstance(this).hide();
+        }
+    });
+    
+    // Close lightbox when clicking on the image
+    document.getElementById('lightboxImage').addEventListener('click', function(e) {
+        bootstrap.Modal.getInstance(document.getElementById('imageLightbox')).hide();
+    });
+</script>
+{% endblock %}

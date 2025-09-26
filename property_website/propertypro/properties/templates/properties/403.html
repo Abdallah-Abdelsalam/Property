@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تم رفض الوصول</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 100px;">
+        <h1>❌ تم رفض الوصول</h1>
+        <p>ليس لديك صلاحية للوصول إلى هذه الصفحة.</p>
+        <a href="{% url 'login' %}">العودة إلى تسجيل الدخول</a>
+    </div>
+</body>
+</html>

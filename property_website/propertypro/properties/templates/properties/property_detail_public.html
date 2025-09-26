@@ -1,0 +1,640 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid property-detail-container">
+    <!-- Property Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="property-header">
+                <h1 class="property-title">{{ property.title }}</h1>
+                <div class="property-location">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    {{ property.address }}, {{ property.city }}, {{ property.state }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Image and Details -->
+    <div class="row mb-5">
+        <!-- Main Image -->
+        <div class="col-lg-8 mb-4">
+            <div class="card property-image-card">
+                <div class="property-image-wrapper">
+                    <img src="{{ property.main_image.url }}" class="main-property-image" alt="{{ property.title }}" onclick="openLightbox('{{ property.main_image.url }}')">
+                </div>
+                
+                <!-- Price and Action Buttons -->
+                <div class="card-body property-actions">
+                    <div class="price-section">
+                        <h2 class="property-price">{{ property.price }} ريال سعودي</h2>
+                        <div class="price-label">السعر</div>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> مشاركة عبر واتساب
+                        </a>
+                        <button onclick="copyShareLink()" class="btn btn-copy-link">
+                            <i class="fas fa-copy"></i> نسخ الرابط
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Details -->
+        <div class="col-lg-4">
+            <!-- Property Details Card -->
+            <div class="card property-details-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-info-circle"></i> تفاصيل العقار
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <div class="detail-label">النوع:</div>
+                        <div class="detail-value">{{ property.property_type.display_name }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الغرف:</div>
+                        <div class="detail-value">{{ property.bedrooms }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الحمامات:</div>
+                        <div class="detail-value">{{ property.bathrooms }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">المساحة:</div>
+                        <div class="detail-value">{{ property.area }} م²</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الحالة:</div>
+                        <div class="detail-value">
+                            <span class="status-badge {% if property.is_published %}published{% else %}unpublished{% endif %}">
+                                {% if property.is_published %}متاح{% else %}غير متاح{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">تاريخ الإضافة:</div>
+                        <div class="detail-value">{{ property.created_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card description-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-align-left"></i> الوصف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="property-description">
+                        {{ property.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Images -->
+    {% if property.images.all %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card gallery-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-images"></i> صور إضافية ({{ property.images.all.count }})
+                    </h5>
+                    <div class="gallery-instruction">انقر على أي صورة لعرضها بالحجم الكامل</div>
+                </div>
+                <div class="card-body">
+                    <div class="gallery-grid">
+                        {% for image in property.images.all %}
+                        <div class="gallery-item">
+                            <div class="gallery-image-container">
+                                <img src="{{ image.image.url }}" class="gallery-image" alt="صورة العقار" onclick="openLightbox('{{ image.image.url }}')">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Share Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card share-card">
+                <div class="card-body">
+                    <h5 class="share-title">
+                        <i class="fas fa-share-alt"></i> مشاركة العقار
+                    </h5>
+                    <div class="share-buttons">
+                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-share-whatsapp">
+                            <i class="fab fa-whatsapp"></i> واتساب
+                        </a>
+                        <button onclick="copyShareLink()" class="btn btn-share-copy">
+                            <i class="fas fa-copy"></i> نسخ الرابط
+                        </button>
+                        <button onclick="shareNative()" class="btn btn-share-native">
+                            <i class="fas fa-share"></i> مشاركة
+                        </button>
+                    </div>
+                    <div class="share-link-container">
+                        <input type="text" class="share-link-input" id="shareLink" value="{{ shareable_link }}" readonly>
+                        <button class="btn btn-copy-input" type="button" onclick="copyShareLink()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="lightboxImage" src="" alt="صورة العقار بالحجم الكامل" class="lightbox-image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Copy Success Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="copyToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">تم النسخ</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            تم نسخ رابط العقار بنجاح!
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Import professional fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+    
+    /* Base styles */
+    body {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Tajawal', sans-serif;
+        color: #333;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+    }
+    
+    .property-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 15px;
+    }
+    
+    /* Property Header */
+    .property-header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eaeaea;
+    }
+    
+    .property-title {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 2.2rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+    
+    .property-location {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        display: flex;
+        align-items: center;
+    }
+    
+    .property-location i {
+        margin-left: 8px;
+        color: #e74c3c;
+    }
+    
+    /* Cards */
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #eaeaea;
+        padding: 15px 20px;
+    }
+    
+    .card-title {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-title i {
+        margin-left: 10px;
+        color: #3498db;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    /* Property Image Card */
+    .property-image-card {
+        height: 100%;
+    }
+    
+    .property-image-wrapper {
+        overflow: hidden;
+    }
+    
+    .main-property-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.5s ease;
+    }
+    
+    .main-property-image:hover {
+        transform: scale(1.02);
+    }
+    
+    .property-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-top: 1px solid #eaeaea;
+    }
+    
+    .price-section {
+        text-align: center;
+    }
+    
+    .property-price {
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        color: #27ae60; /* Professional green for price */
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    .price-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Buttons */
+    .btn {
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        font-family: 'Tajawal', sans-serif;
+    }
+    
+    .btn-whatsapp {
+        background-color: #25D366;
+        color: white;
+    }
+    
+    .btn-whatsapp:hover {
+        background-color: #128C7E;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-copy-link {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-copy-link:hover {
+        background-color: #2980b9;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Property Details Card */
+    .property-details-card .card-body {
+        padding: 0;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .detail-value {
+        color: #555;
+    }
+    
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.published {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.unpublished {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    /* Description Card */
+    .property-description {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #444;
+    }
+    
+    /* Gallery */
+    .gallery-card .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .gallery-instruction {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .gallery-item {
+        aspect-ratio: 1;
+    }
+    
+    .gallery-image-container {
+        height: 100%;
+        overflow: hidden;
+        border-radius: 6px;
+    }
+    
+    .gallery-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    
+    .gallery-image:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Share Section */
+    .share-card .card-body {
+        text-align: center;
+    }
+    
+    .share-title {
+        margin-bottom: 20px;
+        font-family: 'Almarai', sans-serif;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .share-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-share-whatsapp {
+        background-color: #25D366;
+        color: white;
+    }
+    
+    .btn-share-copy {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-share-native {
+        background-color: #9b59b6;
+        color: white;
+    }
+    
+    .share-link-container {
+        display: flex;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .share-link-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px 0 0 6px;
+        font-family: 'Tajawal', sans-serif;
+    }
+    
+    .btn-copy-input {
+        border-radius: 0 6px 6px 0;
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    /* Lightbox */
+    .lightbox-image {
+        max-width: 100%;
+        max-height: 80vh;
+        display: block;
+        margin: 0 auto;
+    }
+    
+    /* Toast */
+    .toast {
+        border-radius: 6px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .property-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .action-buttons {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .property-title {
+            font-size: 1.8rem;
+        }
+        
+        .property-price {
+            font-size: 1.6rem;
+        }
+        
+        .share-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .share-buttons .btn {
+            width: 100%;
+            max-width: 250px;
+        }
+        
+        .gallery-card .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .property-detail-container {
+            padding: 10px;
+        }
+        
+        .property-title {
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        .main-property-image {
+            height: 250px;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+</style>
+
+<script>
+    // Lightbox functionality
+    function openLightbox(imageUrl) {
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxModal = new bootstrap.Modal(document.getElementById('imageLightbox'));
+        
+        lightboxImage.src = imageUrl;
+        lightboxModal.show();
+    }
+    
+    // Copy share link to clipboard
+    function copyShareLink() {
+        const shareLink = document.getElementById('shareLink');
+        shareLink.select();
+        shareLink.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(shareLink.value);
+        
+        // Show success toast
+        const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+        toast.show();
+    }
+    
+    // Native share API
+    function shareNative() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ property.title }}',
+                text: '{{ property.description|truncatewords:20 }}',
+                url: '{{ shareable_link }}'
+            })
+            .catch(console.error);
+        } else {
+            copyShareLink();
+        }
+    }
+    
+    // Keyboard navigation for lightbox
+    document.addEventListener('keydown', function(e) {
+        const lightbox = document.getElementById('imageLightbox');
+        if (lightbox.classList.contains('show')) {
+            if (e.key === 'Escape') {
+                bootstrap.Modal.getInstance(lightbox).hide();
+            }
+        }
+    });
+</script>
+{% endblock %}

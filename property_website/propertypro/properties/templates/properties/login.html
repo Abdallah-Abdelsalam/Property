@@ -1,0 +1,78 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}PropertyPro - تسجيل الدخول{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block container_class %}login-container{% endblock %}
+
+{% block content %}
+<div class="card shadow" style="width: 100%; max-width: 400px;">
+    <div class="card-body p-4">
+        <div class="logo text-center mb-4">
+            <h1><i class="fas fa-home"></i> PropertyPro</h1>
+            <p class="text-muted">سجل الدخول للوصول إلى حسابك</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">اسم المستخدم</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">كلمة المرور</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">تسجيل الدخول</button>
+        </form>
+        
+        
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    /* RTL support for Arabic */
+    body {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    .logo h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 28px;
+    }
+    
+    .logo i {
+        font-size: 32px;
+        color: #3498db;
+        margin-left: 10px;
+        margin-right: 0;
+    }
+    
+    .form-control {
+        text-align: right;
+    }
+    
+    .alert-dismissible .btn-close {
+        left: 0;
+        right: auto;
+    }
+    
+    .text-center {
+        text-align: center !important;
+    }
+</style>
+{% endblock %}
+{% endblock %}

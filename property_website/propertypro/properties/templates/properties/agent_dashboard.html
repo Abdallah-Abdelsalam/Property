@@ -1,0 +1,608 @@
+{% extends 'properties/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        {% if user_role == 'agent' %}
+        العقارات المخصصة لي
+        {% else %}
+        جميع العقارات
+        {% endif %}
+    </h2>
+    <div>
+        <span class="badge bg-success">لوحة تحكم {% if user_role == 'agent' %}الوسيط{% else %}المشرف{% endif %}</span>
+        <a href="{% url 'add_property' %}" class="btn btn-primary ms-2">
+            <i class="fas fa-plus"></i> إضافة عقار جديد
+        </a>
+    </div>
+</div>
+
+<!-- Property Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ total_properties }}</h4>
+                        <p class="mb-0">إجمالي العقارات</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-home fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ properties_with_links|length }}</h4>
+                        <p class="mb-0">عقارات منشورة</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-eye fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">
+                            {% if user_role == 'agent' %}
+                            {{ properties_with_links|length }}
+                            {% else %}
+                            {{ properties_with_links|length }}
+                            {% endif %}
+                        </h4>
+                        <p class="mb-0">
+                            {% if user_role == 'agent' %}
+                            عقارات مخصصة لي
+                            {% else %}
+                            عقارات في النظام
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">
+                            {% if user_role == 'agent' %}
+                            {{ properties_with_links|length }}
+                            {% else %}
+                            {{ properties_with_links|length }}
+                            {% endif %}
+                        </h4>
+                        <p class="mb-0">
+                            {% if user_role == 'agent' %}
+                            عقارات نشطة
+                            {% else %}
+                            عقارات مفعلة
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Admin Management Section (Only for Admins) -->
+{% if user.userprofile.role == 'admin' or user.is_superuser %}
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-cog me-2"></i>إدارة النظام (للمشرفين فقط)
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Add New City -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="card-title mb-0">إضافة مدينة جديدة</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'add_city' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="cityName" class="form-label">اسم المدينة</label>
+                                <input type="text" class="form-control" id="cityName" name="name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">إضافة المدينة</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add New State -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="card-title mb-0">إضافة منطقة جديدة</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'add_state' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="stateName" class="form-label">اسم المنطقة</label>
+                                <input type="text" class="form-control" id="stateName" name="name" required>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-sm w-100">إضافة المنطقة</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add New Property Type -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="card-title mb-0">إضافة نوع عقار جديد</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'add_property_type' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="typeName" class="form-label">الاسم التقني</label>
+                                <input type="text" class="form-control" id="typeName" name="name" placeholder="مثال: apartment" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="typeDisplayName" class="form-label">اسم العرض</label>
+                                <input type="text" class="form-control" id="typeDisplayName" name="display_name" placeholder="مثال: شقة" required>
+                            </div>
+                            <button type="submit" class="btn btn-info btn-sm w-100">إضافة النوع</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add New Address -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="card-title mb-0">إضافة عنوان جديد</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'add_address' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="addressName" class="form-label">اسم العنوان</label>
+                                <input type="text" class="form-control" id="addressName" name="name" placeholder="مثال: حي النرجس" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addressCity" class="form-label">المدينة</label>
+                                <select class="form-select" id="addressCity" name="city" required>
+                                    <option value="">اختر المدينة...</option>
+                                    {% for city in cities %}
+                                    <option value="{{ city.id }}">{{ city.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addressState" class="form-label">المنطقة</label>
+                                <select class="form-select" id="addressState" name="state" required>
+                                    <option value="">اختر المنطقة...</option>
+                                    {% for state in states %}
+                                    <option value="{{ state.id }}">{{ state.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-warning btn-sm w-100">إضافة العنوان</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Properties List -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list me-2"></i>
+            {% if user_role == 'agent' %}
+            العقارات المخصصة لي ({{ properties_with_links|length }})
+            {% else %}
+            جميع العقارات في النظام ({{ properties_with_links|length }})
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for item in properties_with_links %}
+            {% with property=item.property shareable_link=item.shareable_link %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 property-card">
+                    <img src="{{ property.main_image.url }}" class="card-img-top" alt="{{ property.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ property.title }}</h5>
+                        <p class="card-text">
+                            <i class="fas fa-map-marker-alt"></i> {{ property.city.name }}, {{ property.state.name }}
+                        </p>
+                        <p class="card-text">
+                            <strong>{{ property.price }} ريال سعودي</strong>
+                        </p>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-bed"></i> {{ property.bedrooms }} غرفة</span>
+                            <span><i class="fas fa-bath"></i> {{ property.bathrooms }} حمام</span>
+                            <span><i class="fas fa-ruler-combined"></i> {{ property.area }} م²</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-{% if property.is_published %}success{% else %}warning{% endif %}">
+                                {% if property.is_published %}منشور{% else %}مسودة{% endif %}
+                            </span>
+                            <small class="text-muted">{{ property.property_type.display_name }}</small>
+                        </div>
+                        
+                        <!-- Agent Information (for admins) -->
+                        {% if user_role == 'admin' or user.is_superuser %}
+                        <div class="mt-2 p-2 bg-light rounded">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> الوسيط: 
+                                {{ property.agent.get_full_name|default:property.agent.username }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex flex-column gap-2">
+                            <!-- Main Action Buttons -->
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'property_detail' property.pk %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> عرض
+                                </a>
+                                <div>
+                                    <a href="{% url 'edit_property' property.pk %}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-edit"></i> تعديل
+                                    </a>
+                                    <a href="{% url 'delete_property' property.pk %}" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i> حذف
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Share and Images Buttons -->
+                            <div class="d-flex justify-content-between">
+                                <button onclick="copyShareLink('{{ shareable_link }}')" class="btn btn-info btn-sm">
+                                    <i class="fas fa-link"></i> نسخ الرابط
+                                </button>
+                                <a href="{% url 'add_property_images' property.pk %}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-images"></i> إدارة الصور
+                                </a>
+                            </div>
+                            
+                            <!-- Share Link (hidden by default) -->
+                            <div class="share-link-container mt-2" style="display: none;">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control share-link-input" value="{{ shareable_link }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyShareLink('{{ shareable_link }}')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">هذا الرابط يمكن مشاركته مع العملاء دون الحاجة لتسجيل الدخول</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <h4>
+                        {% if user_role == 'agent' %}
+                        لا توجد عقارات مخصصة لك بعد
+                        {% else %}
+                        لا توجد عقارات في النظام
+                        {% endif %}
+                    </h4>
+                    <p>
+                        {% if user_role == 'agent' %}
+                        انتظر حتى يقوم المشرف بتخصيص عقارات لك أو قم بإضافة عقار جديد
+                        {% else %}
+                        ابدأ بإضافة عقار جديد إلى النظام
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'add_property' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> إضافة عقار جديد
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- User Management Section (Only for Admins) -->
+{% if user.userprofile.role == 'admin' or user.is_superuser %}
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-users me-2"></i>إدارة المستخدمين (للمشرفين فقط)
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Create New Sales Agent -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="card-title mb-0">إضافة وسيط مبيعات جديد</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'create_agent' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="username" class="form-label">اسم المستخدم</label>
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label">الاسم الأول</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label">الاسم الأخير</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="password" class="form-label">كلمة المرور</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">رقم الهاتف</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">تأكيد كلمة المرور</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-user-plus"></i> إنشاء حساب وسيط
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Existing Agents List -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="card-title mb-0">الوكلاء الحاليون</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if agents %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>اسم المستخدم</th>
+                                        <th>الاسم الكامل</th>
+                                        <th>البريد الإلكتروني</th>
+                                        <th>عدد العقارات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for agent in agents %}
+                                    <tr>
+                                        <td>{{ agent.username }}</td>
+                                        <td>{{ agent.get_full_name|default:"غير محدد" }}</td>
+                                        <td>{{ agent.email }}</td>
+                                        <td>
+                                            <span class="badge bg-primary">
+                                                {{ agent.property_set.count }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            لا توجد حسابات وكلاء مبيعات حالياً
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Copy Success Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="copyToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">تم النسخ</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            تم نسخ رابط العقار بنجاح!
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Add RTL support for Arabic */
+    body {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    .ms-2 {
+        margin-left: 0 !important;
+        margin-right: 0.5rem !important;
+    }
+    
+    .me-2 {
+        margin-right: 0 !important;
+        margin-left: 0.5rem !important;
+    }
+    
+    .card-title {
+        font-weight: 600;
+    }
+    
+    .property-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .badge {
+        font-size: 0.75em;
+        padding: 0.35em 0.65em;
+    }
+    
+    /* Statistics cards */
+    .card.bg-primary, .card.bg-success, .card.bg-info, .card.bg-warning {
+        border: none;
+        border-radius: 8px;
+    }
+    
+    /* Admin section styles */
+    .admin-management .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .admin-management .card-header {
+        border-radius: 8px 8px 0 0 !important;
+    }
+    
+    /* User management styles */
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+    
+    /* Make form selects smaller to fit in the card */
+    .form-select {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Share link styles */
+    .share-link-container {
+        transition: all 0.3s ease;
+    }
+    
+    .share-link-input {
+        font-size: 0.75rem;
+    }
+</style>
+
+<script>
+    // Copy share link to clipboard
+    function copyShareLink(link) {
+        // Create a temporary input element
+        const tempInput = document.createElement('input');
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        
+        // Show success toast
+        const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+        toast.show();
+        
+        // Show the share link container
+        const shareContainers = document.querySelectorAll('.share-link-container');
+        shareContainers.forEach(container => {
+            container.style.display = 'block';
+        });
+    }
+    
+    // Show share link when copy button is clicked
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-info') && e.target.closest('.btn-info').textContent.includes('نسخ الرابط')) {
+            const card = e.target.closest('.property-card');
+            const shareContainer = card.querySelector('.share-link-container');
+            if (shareContainer) {
+                shareContainer.style.display = shareContainer.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+    });
+    
+    // Password confirmation validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('كلمة المرور غير متطابقة');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        if (password && confirmPassword) {
+            password.onchange = validatePassword;
+            confirmPassword.onkeyup = validatePassword;
+        }
+    });
+</script>
+{% endblock %}
